@@ -148,7 +148,7 @@ class AudioSplitter:
             messagebox.showerror("Audio Splitter", "Ошибка декодирования файла")
         else:
             chunks = split_on_silence(
-                sound, min_silence_len=pause * 1000, silence_thresh=silence,
+                sound, min_silence_len=int(pause) * 1000, silence_thresh=silence,
             )
             percentage = 100 / len(chunks)
             bar = Progressbar(self.app, length=100)
