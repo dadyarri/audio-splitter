@@ -1,7 +1,6 @@
 **/__pycache__/
 venv_audio/
 build/
-dist/
 .vscode/
 .idea/
 
