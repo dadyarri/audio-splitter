@@ -1,0 +1,5 @@
+venv_audio/
+.vscode/
+.idea
+
+.envrc
