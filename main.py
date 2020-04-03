@@ -93,6 +93,17 @@ class AudioSplitter:
         self.format_input = OptionMenu(self.app, self.current_format, *self.formats,)
         self.format_input.grid(row=5, column=1)
 
+        self.silence_label = Label(
+            self.app,
+            text="Пограничное значение тишины",
+            font=("Noto Sans", 13),
+            padx=5,
+        )
+        self.silence_label.grid(row=6, column=0)
+
+        self.silence_input = Entry(self.app, font=("Noto Sans", 13))
+        self.silence_input.grid(row=6, column=1)
+
         self.start = Button(
             self.app,
             text="Начать",
@@ -100,7 +111,7 @@ class AudioSplitter:
             command=self.start_splitting,
             padx=5,
         )
-        self.start.grid(row=6, column=1)
+        self.start.grid(row=7, column=1)
 
     def start_splitting(self):
 
@@ -109,6 +120,7 @@ class AudioSplitter:
         f_name = self.name_input.get()
         pause = self.pause_input.get()
         out_fmt = self.current_format.get()
+        silence = self.silence_input.get() or -16
 
         fmt = s_path[-3:]
         name = f_name or ntpath.basename(s_path)
@@ -136,11 +148,11 @@ class AudioSplitter:
             messagebox.showerror("Audio Splitter", "Ошибка декодирования файла")
         else:
             chunks = split_on_silence(
-                sound, min_silence_len=pause * 1000, silence_thresh=-16,
+                sound, min_silence_len=pause * 1000, silence_thresh=silence,
             )
             percentage = 100 / len(chunks)
             bar = Progressbar(self.app, length=100)
-            bar.grid(row=6, column=0)
+            bar.grid(row=7, column=0)
             for i, chunk in enumerate(chunks):
                 chunk.export(f"{d_path}/{name}_{i}.{out_fmt}", format=out_fmt)
                 bar["value"] += percentage
