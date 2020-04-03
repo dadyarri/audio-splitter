@@ -74,13 +74,24 @@ class AudioSplitter:
         self.pause_input = Entry(self.app, font=("Noto Sans", 13))
         self.pause_input.grid(row=3, column=1)
 
+        self.name_label = Label(
+            self.app,
+            text="Шаблон имени выходных файлов (к нему добавится порядковый номер)",
+            font=("Noto Sans", 13),
+            padx=5,
+        )
+        self.name_label.grid(row=4, column=0)
+
+        self.name_input = Entry(self.app, font=("Noto Sans", 13))
+        self.name_input.grid(row=4, column=1)
+
         self.format_label = Label(
             self.app, text="Формат выходных файлов", font=("Noto Sans", 13), padx=5
         )
-        self.format_label.grid(row=4, column=0)
+        self.format_label.grid(row=5, column=0)
 
         self.format_input = OptionMenu(self.app, self.current_format, *self.formats,)
-        self.format_input.grid(row=4, column=1)
+        self.format_input.grid(row=5, column=1)
 
         self.start = Button(
             self.app,
@@ -89,16 +100,18 @@ class AudioSplitter:
             command=self.start_splitting,
             padx=5,
         )
-        self.start.grid(row=5, column=1)
+        self.start.grid(row=6, column=1)
 
     def start_splitting(self):
 
         s_path = self.source_input.get()
         d_path = self.source_input.get()
+        f_name = self.name_input.get()
         pause = self.pause_input.get()
+        out_fmt = self.current_format.get()
 
         fmt = s_path[-3:]
-        name = ntpath.basename(s_path)
+        name = f_name or ntpath.basename(s_path)
 
         if not s_path:
             messagebox.showerror(
@@ -127,9 +140,9 @@ class AudioSplitter:
             )
             percentage = 100 / len(chunks)
             bar = Progressbar(self.app, length=100)
-            bar.grid(row=5, column=0)
+            bar.grid(row=6, column=0)
             for i, chunk in enumerate(chunks):
-                chunk.export(f"{d_path}/{name}_{i}.wav", format="wav")
+                chunk.export(f"{d_path}/{name}_{i}.{out_fmt}", format=out_fmt)
                 bar["value"] += percentage
             messagebox.showinfo("Audio Splitter", "Разделение завершено!")
 

@@ -1,5 +1,8 @@
 venv_audio/
+build/
+dist/
 .vscode/
-.idea
+.idea/
 
 .envrc
+.spec
