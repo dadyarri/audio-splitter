@@ -15,7 +15,7 @@ def report_error(exc, val, tb):
 
     log = Path(Path().cwd(), "as.txt")
 
-    with open(log, "w") as log:
+    with open(log, "a") as log:
         log.write("Exception in Tkinter callback")
         sys.last_type = exc
         sys.last_value = val
@@ -44,6 +44,7 @@ class AudioSplitter:
 
         self.source_path = StringVar(self.app)
         self.dest_path = StringVar(self.app)
+        self.script_path = StringVar(self.app)
 
         self.source_label = Label(
             self.app, text="Исходный файл дорожки", font=("Noto Sans", 13), padx=5
@@ -126,12 +127,62 @@ class AudioSplitter:
 
         self.start = Button(
             self.app,
-            text="Начать",
+            text="Начать разделение",
             font=("Noto Sans", 16),
             command=self.start_splitting,
             padx=5,
         )
         self.start.grid(row=7, column=1)
+
+        self.scan_label = Label(
+            self.app, text="Путь к папке с чанками", font=("Noto Sans", 13), padx=5
+        )
+        self.scan_label.grid(row=8, column=0)
+
+        self.scan_input = Entry(
+            self.app, textvariable=self.dest_path, font=("Noto Sans", 13)
+        )
+        self.scan_input.grid(row=8, column=1)
+
+        self.scan_browse = Button(
+            self.app,
+            text="Обзор",
+            command=self.browse_scan_button,
+            font=("Noto Sans", 13),
+            padx=5,
+        )
+        self.scan_browse.grid(row=8, column=2)
+
+        self.script_label = Label(
+            self.app,
+            text="Путь к скрипту, содержащему переменные",
+            font=("Noto Sans", 13),
+            padx=5,
+        )
+        self.script_label.grid(row=9, column=0)
+
+        self.script_input = Entry(
+            self.app, textvariable=self.script_path, font=("Noto Sans", 13)
+        )
+        self.script_input.grid(row=9, column=1)
+
+        self.script_browse = Button(
+            self.app,
+            text="Обзор",
+            command=self.browse_script_button,
+            font=("Noto Sans", 13),
+            padx=5,
+        )
+        self.script_browse.grid(row=9, column=2)
+
+        self.start = Button(
+            self.app,
+            text="Начать вставку переменных",
+            font=("Noto Sans", 16),
+            command=self.start_inserting,
+            padx=5,
+        )
+        self.start.grid(row=10, column=1)
 
     def start_splitting(self):
 
@@ -142,7 +193,7 @@ class AudioSplitter:
         out_fmt = self.current_format.get()
         silence = self.silence_input.get() or -16
 
-        fmt = s_path[-3:]
+        fmt = s_path[-len(out_fmt):]
         name = f_name or ntpath.basename(s_path)
 
         if not s_path:
@@ -178,6 +229,26 @@ class AudioSplitter:
                 bar["value"] += percentage
             messagebox.showinfo("Audio Splitter", "Разделение завершено!")
 
+    def start_inserting(self):
+        scan = Path(self.scan_input.get())
+        script = self.script_input.get()
+        fmt = self.current_format.get()
+
+        if not scan:
+            messagebox.showerror(
+                "Audio Splitter", "Путь до папки с чанками не должен быть пустым"
+            )
+        if not script:
+            messagebox.showerror("Audio Splitter", "Путь скрипта не должен быть пустым")
+
+        with open(script, "a") as file:
+            for chunk in scan.rglob(f"**/*.{fmt}"):
+                b_name = ntpath.basename(chunk)[:-len(fmt) + 1]
+                file.write(f'$ {b_name} = "{chunk}"\n')
+
+        messagebox.showinfo("Audio Splitter", "Вставка завершена!")
+
+
     def browse_source_button(self):
         # Позволяет пользователю выбрать файл
         # и сохраняет путь до него в глобальной переменной source_path
@@ -195,6 +266,18 @@ class AudioSplitter:
         # и сохраняет путь до нее в глобальной переменной dest_path
         filename = filedialog.askdirectory()
         self.dest_path.set(filename)
+
+    def browse_scan_button(self):
+        filename = filedialog.askdirectory()
+        self.scan_path.set(filename)
+
+    def browse_script_button(self):
+        # Позволяет пользователю выбрать файл
+        # и сохраняет путь до него в глобальной переменной source_path
+        filename = filedialog.askopenfilename(
+            filetypes=(("Ren'Py Script", "*.rpy"), ("Все файлы", "*.*"),)
+        )
+        self.script_path.set(filename)
 
 
 def main():
