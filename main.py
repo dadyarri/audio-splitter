@@ -174,7 +174,7 @@ class AudioSplitter:
             bar = Progressbar(self.app, length=100)
             bar.grid(row=7, column=0)
             for i, chunk in enumerate(chunks):
-                chunk.export(f"{d_path}/{name}_{i}.{out_fmt}", format=out_fmt)
+                chunk.export(f"{d_path}/{name}_{i + 1}.{out_fmt}", format=out_fmt)
                 bar["value"] += percentage
             messagebox.showinfo("Audio Splitter", "Разделение завершено!")
 
