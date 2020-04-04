@@ -1,4 +1,5 @@
 import ntpath
+from pathlib import Path
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
@@ -9,11 +10,30 @@ from pydub.exceptions import CouldntDecodeError
 from pydub.silence import split_on_silence
 
 
+def report_error(exc, val, tb):
+    from traceback import TracebackException
+
+    log = Path(Path().cwd(), "as.txt")
+
+    with open(log, "w") as log:
+        log.write("Exception in Tkinter callback")
+        sys.last_type = exc
+        sys.last_value = val
+        sys.last_traceback = tb
+        for line in TracebackException(type(val), val, tb, limit=None).format(
+            chain=True
+        ):
+            log.write(line)
+        log.write("\n")
+
+
 class AudioSplitter:
     def __init__(self):
         self.title = "Audio Splitter"
         self.size = ""
         self.app = Tk()
+
+        self.app.report_callback_exception = report_error
 
         self.app.title(self.title)
         self.app.geometry(self.size)
